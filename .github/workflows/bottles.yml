@@ -1,0 +1,35 @@
+name: Build and Publish Bottles
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_FROM_API: 1
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Link local repo as tap
+        run: |
+          mkdir -p /opt/homebrew/Library/Taps/jasonhowk
+          ln -s $GITHUB_WORKSPACE /opt/homebrew/Library/Taps/jasonhowk/homebrew-iverilog-v12
+
+      - name: Build bottle and upload to release
+        run: |
+          brew install --build-bottle jasonhowk/iverilog-v12/icarus-verilog@12
+          brew bottle --json jasonhowk/iverilog-v12/icarus-verilog@12
+          local_file=$(jq -r '.[].bottle.tags[].local_filename' *.json)
+          upload_file="${local_file/--/-}"
+          cp "$local_file" "$upload_file"
+          echo "Uploading: $upload_file"
+          ls -la *.tar.gz
+          gh release delete "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-iverilog-v12 --yes 2>/dev/null || true
+          gh release create "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-iverilog-v12 --title "icarus-verilog@12 12.0" --notes "Bottles for icarus-verilog 12.0"
+          gh release upload "icarus-verilog@12-12.0" "$upload_file" --repo jasonhowk/homebrew-iverilog-v12
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
