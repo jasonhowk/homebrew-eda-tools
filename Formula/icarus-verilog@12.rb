@@ -7,7 +7,7 @@ class IcarusVerilogAT12 < Formula
 
   bottle do
   root_url "https://github.com/jasonhowk/homebrew-iverilog-v12/releases/download/icarus-verilog%4012-12.0"
-  sha256 cellar: :any, arm64_sequoia: "502a7aa782f6ea1f8314845c3752bf2afd4f2fc41b88bf60871d27637cedc449"
+  sha256 cellar: :any, arm64_sequoia: "034d87b8bcef486b69677778552fe1ba75d18e9bef4c44546f98f0b6c527641c"
 end
 
   depends_on "autoconf" => :build
