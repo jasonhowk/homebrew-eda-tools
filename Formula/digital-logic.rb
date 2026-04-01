@@ -9,7 +9,7 @@ class DigitalLogic < Formula
   depends_on "openjdk@17"
 
   def install
-    libexec.install "Digital/Digital.jar"
+    libexec.install "Digital.jar"
 
     (bin/"digital").write <<~EOS
       #!/bin/bash
