@@ -4,6 +4,12 @@ A Homebrew tap providing Electronic Design Automation (EDA) tools for macOS. Opt
 
 Pre-built bottles for `arm64_sequoia` are available for **Icarus Verilog** and **GTKWave 4**, so those install without a local compile. **Digital** does not require a build — it installs a pre-packaged JAR and shell wrapper, with OpenJDK 17 pulled in automatically as a dependency.
 
+## One-Shot Install
+The easiest way to install all three tools directly in macOS terminal:
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jasonhowk/homebrew-eda-tools/main/install.sh)"
+```
+
 ## Tap
 
 ```bash
@@ -48,16 +54,6 @@ brew install jasonhowk/eda-tools/gtkwave4
 
 ```bash
 gtkwave output.vcd
-```
-
-## Install All Tools
-
-Clone the repo and use the included Brewfile to install everything at once:
-
-```bash
-git clone https://github.com/jasonhowk/homebrew-eda-tools.git
-cd homebrew-eda-tools
-brew bundle
 ```
 
 ## Pre-built Bottles
