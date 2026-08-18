@@ -6,7 +6,7 @@ class IcarusVerilogAT12 < Formula
   license "GPL-2.0-or-later"
 
   bottle do
-  root_url "https://github.com/jasonhowk/homebrew-iverilog-v12/releases/download/icarus-verilog%4012-12.0"
+  root_url "https://github.com/jasonhowk/homebrew-eda-tools/releases/download/icarus-verilog%4012-12.0"
   sha256 cellar: :any, arm64_sequoia: "034d87b8bcef486b69677778552fe1ba75d18e9bef4c44546f98f0b6c527641c"
 end
 
