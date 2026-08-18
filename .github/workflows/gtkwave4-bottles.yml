@@ -38,8 +38,8 @@ jobs:
           echo "Tag:       $release_tag"
           echo "Uploading: $upload_file"
           ls -la *.tar.gz
-          gh release delete "$release_tag" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
-          gh release create "$release_tag" --repo jasonhowk/homebrew-eda-tools --title "gtkwave4 ${formula_version}" --notes "Bottles for gtkwave4 ${formula_version}"
-          gh release upload "$release_tag" "$upload_file" --repo jasonhowk/homebrew-eda-tools
+          # gh release delete "$release_tag" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
+          # gh release create "$release_tag" --repo jasonhowk/homebrew-eda-tools --title "gtkwave4 ${formula_version}" --notes "Bottles for gtkwave4 ${formula_version}"
+          # gh release upload "$release_tag" "$upload_file" --repo jasonhowk/homebrew-eda-tools
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

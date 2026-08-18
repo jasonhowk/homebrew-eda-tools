@@ -34,8 +34,8 @@ jobs:
           cp "$local_file" "$upload_file"
           echo "Uploading: $upload_file"
           ls -la *.tar.gz
-          gh release delete "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
-          gh release create "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-eda-tools --title "icarus-verilog@12 12.0" --notes "Bottles for icarus-verilog 12.0"
-          gh release upload "icarus-verilog@12-12.0" "$upload_file" --repo jasonhowk/homebrew-eda-tools
+          # gh release delete "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
+          # gh release create "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-eda-tools --title "icarus-verilog@12 12.0" --notes "Bottles for icarus-verilog 12.0"
+          # gh release upload "icarus-verilog@12-12.0" "$upload_file" --repo jasonhowk/homebrew-eda-tools
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
