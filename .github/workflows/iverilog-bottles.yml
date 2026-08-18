@@ -22,8 +22,8 @@ jobs:
 
       - name: Link local repo as tap
         run: |
-          mkdir -p "$(brew --prefix)/Library/Taps/jasonhowk"
-          ln -s $GITHUB_WORKSPACE "$(brew --prefix)/Library/Taps/jasonhowk/homebrew-eda-tools"
+          sudo mkdir -p "$(brew --prefix)/Library/Taps/jasonhowk"
+          sudo ln -s $GITHUB_WORKSPACE "$(brew --prefix)/Library/Taps/jasonhowk/homebrew-eda-tools"
 
       - name: Build bottle and upload to release
         run: |
