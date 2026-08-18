@@ -4,11 +4,42 @@ on:
   workflow_dispatch:
 
 jobs:
+  create-release:
+    runs-on: macos-15
+
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_FROM_API: 1
+
+    permissions:
+      contents: write
+
+    outputs:
+      release_tag: ${{ steps.release.outputs.release_tag }}
+      formula_version: ${{ steps.release.outputs.formula_version }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create release
+        id: release
+        run: |
+          formula_version=$(grep '^\s*version ' Formula/gtkwave4.rb | sed 's/.*version "\(.*\)"/\1/')
+          release_tag="gtkwave4-${formula_version}"
+          echo "formula_version=${formula_version}" >> $GITHUB_OUTPUT
+          echo "release_tag=${release_tag}" >> $GITHUB_OUTPUT
+          #gh release delete "$release_tag" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
+          #gh release create "$release_tag" --repo jasonhowk/homebrew-eda-tools --title "gtkwave4 ${formula_version}" --notes "Bottles for gtkwave4 ${formula_version}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build:
+    needs: create-release
+
     strategy:
       matrix:
         os: [macos-15, macos-15-intel]
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
 
     env:
       HOMEBREW_NO_AUTO_UPDATE: 1
@@ -22,24 +53,19 @@ jobs:
 
       - name: Link local repo as tap
         run: |
-          sudo mkdir -p "$(brew --prefix)/Library/Taps/jasonhowk"
-          sudo ln -s $GITHUB_WORKSPACE "$(brew --prefix)/Library/Taps/jasonhowk/homebrew-eda-tools"
+          sudo mkdir -p "$(brew --repository)/Library/Taps/jasonhowk"
+          sudo ln -s $GITHUB_WORKSPACE "$(brew --repository)/Library/Taps/jasonhowk/homebrew-eda-tools"
+          brew trust jasonhowk/eda-tools
 
       - name: Build bottle and upload to release
         run: |
           brew install --build-bottle --overwrite jasonhowk/eda-tools/gtkwave4
           brew bottle --json jasonhowk/eda-tools/gtkwave4
-          formula_version=$(jq -r '.[].formula.pkg_version' *.json)
-          release_tag="gtkwave4-${formula_version}"
           local_file=$(jq -r '.[].bottle.tags[].local_filename' *.json)
           upload_file="${local_file/--/-}"
           cp "$local_file" "$upload_file"
-          echo "Version:   $formula_version"
-          echo "Tag:       $release_tag"
           echo "Uploading: $upload_file"
           ls -la *.tar.gz
-          # gh release delete "$release_tag" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
-          # gh release create "$release_tag" --repo jasonhowk/homebrew-eda-tools --title "gtkwave4 ${formula_version}" --notes "Bottles for gtkwave4 ${formula_version}"
-          # gh release upload "$release_tag" "$upload_file" --repo jasonhowk/homebrew-eda-tools
+          #gh release upload "${{ needs.create-release.outputs.release_tag }}" "$upload_file" --repo jasonhowk/homebrew-eda-tools
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

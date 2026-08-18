@@ -1,14 +1,45 @@
-name: Build and Publish icarus-iverilog Bottles
+name: Build and Publish icarus-verilog Bottles
 
 on:
   workflow_dispatch:
 
 jobs:
+  create-release:
+    runs-on: macos-15
+
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_FROM_API: 1
+
+    permissions:
+      contents: write
+
+    outputs:
+      release_tag: ${{ steps.release.outputs.release_tag }}
+      formula_version: ${{ steps.release.outputs.formula_version }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create release
+        id: release
+        run: |
+          formula_version=$(grep '^\s*url ' "Formula/icarus-verilog@12.rb" | sed 's/.*\/v\([0-9]*\)_\([0-9]*\).tar.gz.*/\1.\2/')
+          release_tag="icarus-verilog@12-${formula_version}"
+          echo "formula_version=${formula_version}" >> $GITHUB_OUTPUT
+          echo "release_tag=${release_tag}" >> $GITHUB_OUTPUT
+          #gh release delete "$release_tag" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
+          #gh release create "$release_tag" --repo jasonhowk/homebrew-eda-tools --title "icarus-verilog@12 ${formula_version}" --notes "Bottles for icarus-verilog@12 ${formula_version}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build:
+    needs: create-release
+
     strategy:
       matrix:
         os: [macos-15, macos-15-intel]
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
 
     env:
       HOMEBREW_NO_AUTO_UPDATE: 1
@@ -22,8 +53,9 @@ jobs:
 
       - name: Link local repo as tap
         run: |
-          sudo mkdir -p "$(brew --prefix)/Library/Taps/jasonhowk"
-          sudo ln -s $GITHUB_WORKSPACE "$(brew --prefix)/Library/Taps/jasonhowk/homebrew-eda-tools"
+          sudo mkdir -p "$(brew --repository)/Library/Taps/jasonhowk"
+          sudo ln -s $GITHUB_WORKSPACE "$(brew --repository)/Library/Taps/jasonhowk/homebrew-eda-tools"
+          brew trust jasonhowk/eda-tools
 
       - name: Build bottle and upload to release
         run: |
@@ -34,8 +66,6 @@ jobs:
           cp "$local_file" "$upload_file"
           echo "Uploading: $upload_file"
           ls -la *.tar.gz
-          # gh release delete "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-eda-tools --yes 2>/dev/null || true
-          # gh release create "icarus-verilog@12-12.0" --repo jasonhowk/homebrew-eda-tools --title "icarus-verilog@12 12.0" --notes "Bottles for icarus-verilog 12.0"
-          # gh release upload "icarus-verilog@12-12.0" "$upload_file" --repo jasonhowk/homebrew-eda-tools
+          #gh release upload "${{ needs.create-release.outputs.release_tag }}" "$upload_file" --repo jasonhowk/homebrew-eda-tools
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
